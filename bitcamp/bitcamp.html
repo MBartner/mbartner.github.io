@@ -2,7 +2,14 @@
 <head>
 <script src="./js/aframe.min.js"></script>
 <script src="./js/aframe-ar.js"></script>
-<script type="./js/touchCursor.js"></script>
+<!-- <script type="./js/touchCursor.js"></script> -->
+<script src="./js/zingtouch.js"></script>
+<script src="./js/websocket.js"></script>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
 
 <style type="text/css">
 	
@@ -27,69 +34,324 @@
 	}
 
 	.title{
-		position: absolute;
+		position: relative;
 		top: 0;
-		width: 50%;
-		text-align: center;
+	}
+
+	.grid-container {
+  		display: grid;
+  		grid-template-columns: auto auto auto auto auto;
+  		padding: 10px;
+	}
+
+	.grid-item {
+	  background-color: rgba(255, 255, 255, 0.8);
+	  padding: 5px;
+	  font-size: 15px;
+	  text-align: center;
+	}
+
+	#touchArea{
+		background-color: rgba(255, 255, 255, 0.8);
+		position: absolute; 
+		right: 40%;
+		width: 20%;
+		height: 20%;
+		bottom: 0;
+		z-index: 1;
+		margin: 25px 25px 25px 25px;
+		padding: 25px 25px 25px 25px;
+	}
+
+	#controlButtons{
+		position: absolute; 
+		right: 50%;
+		bottom: 36%;
+		z-index: 1;
+	}
+
+	@media only screen and (max-width: 600px) {
+	    .grid-container{
+	    	visibility: hidden;
+	    }
+
+	    #touchArea{
+	    	margin: 0;
+	    	padding: 0; 
+	    	background-color: rgba(255, 255, 255, 0.0);
+	    	z-index: 1;
+	    	position:absolute;
+		    left: 0;
+		    top: 0;
+		    width: 100%;
+		    height: 100%;
+	    }
+
+	    #controlButtons{
+	    	margin-left: 100%;
+	    	position: absolute;
+	    	margin-left: 100%;
+	    	bottom: 4%;
+	    	z-index: 1;
+	    	right: auto;
+	    }
 	}
 </style>
 
 <script type="text/javascript">
-AFRAME.registerComponent('click-handler', {
 
-	init: function () {
+var obj;
+var zt;
+var curControl = 'rotationButton';
+var conn = 0;
 
-		var el = this.el;
-		scene = document.querySelector('#main-app-container');
+$(document).ready(function(){
 
-		console.log("INIT")
+	sceneEl = document.querySelector("#main-app-container");
+    obj = document.querySelector('#hologram');
 
-		scene.addEventListener('mousedown', function(){
+    var touchControlArea = document.querySelector('#touchArea');
+    zt = new ZingTouch.Region(touchControlArea);
+    var chainableObject = zt.bind(touchControlArea);
 
-			console.log("HIT DOWN");
-		});
+    connect(function(){
+    	host('Bob', function(result){
 
-		scene.addEventListener('mouseup', function(){
+    		//success
+    		if(result == 0){
+    			//state is hosting (2)
+    			conn = 2;
+    		}
+    		else{
+    			//error
+    		}
+    	});
+    });
 
-			console.log("HIT UP");
-		});
+    var moveFactor = .3;
 
-		this.el.addEventListener('raycaster-intersected', function (evt) {
+    chainableObject
+	    .pan(function(e){
+	    	console.log(e.detail.data[0]);
 
-			console.log('Player hit something!'+evt.position);
-		});
-	},
+	    	var dir = e.detail.data[0].currentDirection;
 
-	update: function () {
+	    	if(curControl == 'positionButton'){
+		    	//move to the right
+		    	if(dir < 45 && dir > 0 || dir > 315){
+		    		obj.object3D.position.x+=moveFactor;
+		    	}
+		    	//move up
+		    	else if(dir > 45 && dir < 135){
+		    		obj.object3D.position.z-=moveFactor;
+		    	}
+		    	//move left
+		    	else if(dir > 135 && dir < 225){
+		    		obj.object3D.position.x-=moveFactor;
+		    	}
+		    	//move down
+		    	else if(dir > 225 && dir < 315){
+		    		obj.object3D.position.z+=moveFactor;
+		    	}
 
-	}
+		    	//if properly connected then send the updated coordinates
+		    	if(conn == 2){
+		    		sendUpdate(0, obj.object3D.position.x, obj.object3D.position.z, obj.object3D.position.z)
+		    	}
+		    }
+		    else{
+		    	//rotate to the right
+		    	if(dir < 45 && dir > 0 || dir > 315){
+		    		//obj.object3D.rotation.x+=THREE.Math.degToRad(5);
+
+		    		obj.object3D.rotation.z-=THREE.Math.degToRad(5);
+		    	}
+		    	//rotate up
+		    	else if(dir > 45 && dir < 135){
+		    		//obj.object3D.rotation.z-=THREE.Math.degToRad(5);
+
+		    		obj.object3D.rotation.x-=THREE.Math.degToRad(5);
+		    	}
+		    	//rotate left
+		    	else if(dir > 135 && dir < 225){
+		    		//obj.object3D.rotation.x-=THREE.Math.degToRad(5);
+
+		    		obj.object3D.rotation.z+=THREE.Math.degToRad(5);
+		    	}
+		    	//rotate down
+		    	else if(dir > 225 && dir < 315){
+		    		//obj.object3D.rotation.z+=THREE.Math.degToRad(5);
+
+		    		obj.object3D.rotation.x+=THREE.Math.degToRad(5);
+		    	}
+
+		    	//if properly connected then send the updated coordinates
+		    	if(conn == 2){
+		    		sendUpdate(1, obj.object3D.rotation.x, obj.object3D.rotation.z, obj.object3D.rotation.z);
+		    	}
+		    }
+	    })
+	    .pinch(function(e){
+	    	console.log(e.detail);
+
+	    	obj.object3D.scale.multiplyScalar(.98);
+
+	    	//if properly connected then send the updated coordinates
+	    	if(conn == 2){
+	    		sendUpdate(2, .98, 0, 0);
+	    	}
+	    })
+	    .expand(function(e){
+	    	console.log(e.detail);
+
+	    	obj.object3D.scale.multiplyScalar(1.02);
+
+	    	//if properly connected then send the updated coordinates
+	    	if(conn == 2){
+	    		sendUpdate(2, 1.02, 0, 0);
+	    	}
+	    });
+
+    console.log("ready");
 });
+
+function controlChange(button){
+
+	var otherButton = document.getElementById(curControl);
+
+	if(button.id == 'positionButton'){
+
+		curControl = 'positionButton'	
+	}
+	else{
+
+		curControl = 'rotationButton'
+	}
+
+	var curButton = document.getElementById(curControl);
+	otherButton.disabled = false;
+	curButton.disabled = true;
+}
+
+function handleObjChange(button){
+	console.log("Pressed Button: "+button.id);
+
+	if(button.id == 'posUp'){
+		obj.object3D.position.z-=1;
+	}
+	else if(button.id == 'posDown'){
+		obj.object3D.position.z+=1;
+	}
+	else if(button.id == 'posRight'){
+		obj.object3D.position.x+=1;
+	}
+	else if(button.id == 'posLeft'){
+		obj.object3D.position.x-=1;
+	}
+	else if(button.id == 'posOut'){
+		obj.object3D.position.y+=1;
+	}
+	else if(button.id == 'posIn'){
+		obj.object3D.position.y-=1;
+	}
+	else if(button.id == 'rotUp'){
+		
+		obj.object3D.rotation.z-=THREE.Math.degToRad(5);
+	}
+	else if(button.id == 'rotDown'){
+		
+		obj.object3D.rotation.z+=THREE.Math.degToRad(5);
+	}
+	else if(button.id == 'rotLeft'){
+		
+		obj.object3D.rotation.x-=THREE.Math.degToRad(5);
+	}
+	else if(button.id == 'rotRight'){
+
+		obj.object3D.rotation.x+=THREE.Math.degToRad(5);
+	}
+	else if(button.id == 'rotIn'){
+		obj.object3D.rotation.y-=THREE.Math.degToRad(5);
+	}
+	else{
+		obj.object3D.rotation.y+=THREE.Math.degToRad(5);
+	}
+	console.log(obj.object3D.position);
+	console.log(obj.object3D.rotation);
+}
 </script>
 </head>
 
 <!-- start the body of your page -->
 <body style='margin : 0px; overflow: hidden;'>
 
-	<div class='rotate'>
-		<p class='title'>Rotation</p>
-		<input type="button" value='up'>
-		<input type="button" value='down'>
-		<input type="button" value='left'>
-		<input type="button" value='right'>
+	<div id='touchArea'></div>
+
+	<div id='controlButtons'>
+		<input type="button" id='positionButton' value="position" onclick='controlChange(this)'>
+		<input type="button" id='rotationButton' value="rotation" disabled onclick='controlChange(this)'>
 	</div>
 
-	<div class='position'>
-		<input type="button" value='up'>
-		<input type="button" value='down'>
-		<input type="button" value='left'>
-		<input type="button" value='right'>
+	<div class="grid-container rotate">
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item">Rotation</div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='rotUp' value='Up'></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='rotLeft' value='Left'></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='rotIn' value='Out'></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='rotOut' value='Out'></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='rotRight' value='Right'></div>
+
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='rotDown' value='Down'></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	</div>
+
+	<div class="grid-container position">
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item">Position</div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='posUp' value='Up'></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='posLeft' value='Left'></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='posIn' value='In'></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='posOut' value='Out'></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='posRight' value='Right'></div>
+
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"><input type="button" onclick='handleObjChange(this)' id='posDown' value='Down'></div>
+	  <div class="grid-item"></div>
+	  <div class="grid-item"></div>
 	</div>
 
 	<!-- Define your 3d scene and enabled ar.js -->
 	<a-scene id='main-app-container' embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
+		
+		<a-entity id='hologram' position='0 0 0'>
+			<a-sphere position="0 0.5 0" radius="0.5" color="#EF2D5E"></a-sphere>
+			<a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" color="#7BC8A4"></a-plane>
+		</a-entity>
 
-		<a-sphere position="0 0.5 0" radius="0.5" color="#EF2D5E"></a-sphere>
-		<a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" color="#7BC8A4"></a-plane>
 
 		<a-marker-camera preset='hiro'></a-marker-camera>
 	</a-scene>

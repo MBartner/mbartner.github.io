@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<head>
+<script src="./js/aframe.min.js"></script>
+<script src="./js/aframe-ar.js"></script>
+<script src='./js/websocket.js'></script>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<style type="text/css">
+	
+	.rotate{
+		position: absolute; 
+		left:0;
+		bottom: 0;
+		z-index: 1;
+		margin: 25px 25px 25px 25px;
+		padding: 25px 25px 25px 25px;
+		background-color: rgba(127, 127, 127, 0.5);
+	}
+
+	.position{
+		position: absolute; 
+		right: 0;
+		bottom: 0;
+		z-index: 1;
+		margin: 25px 25px 25px 25px;
+		padding: 25px 25px 25px 25px;
+		background-color: rgba(127, 127, 127, 0.5);
+	}
+
+	.title{
+		position: relative;
+		top: 0;
+	}
+
+	.grid-container {
+  		display: grid;
+  		grid-template-columns: auto auto auto auto auto;
+  		padding: 10px;
+	}
+
+	.grid-item {
+	  background-color: rgba(255, 255, 255, 0.8);
+	  padding: 5px;
+	  font-size: 15px;
+	  text-align: center;
+	}
+</style>
+
+<script type="text/javascript">
+
+var obj=null;
+var conn = 0;
+
+$(document).ready(function(){
+
+	obj = document.querySelector('#hologram');
+
+	connect(function(){
+		join('Bob', function(res){
+			if(res == 0){
+				conn = 1;
+			}
+			else{
+				//error
+			}
+		}, callbackUpdate);
+	});
+});
+
+function callbackUpdate(type, x, y, z){
+
+	console.log('Updating the client!');
+
+	if(obj == null) return false;
+
+	//position
+	if(type == 0){
+
+		obj.object3D.position.x = x;
+		obj.object3D.position.y = y;
+		obj.object3D.position.z = z;
+	}
+	//rotate
+	else if(type == 1){
+
+		obj.object3D.rotation.x = x;
+		obj.object3D.rotation.y = y;
+		obj.object3D.rotation.z = z;
+	}
+	//scale
+	else{
+
+		//for scale the x coordinate is the factor that we are scaling by
+		//if scaling up x>1 and if scaling down x<1
+		obj.object3D.scale.multiplyScalar(x);
+	}
+}
+</script>
+</head>
+
+<!-- start the body of your page -->
+<body style='margin : 0px; overflow: hidden;'>
+
+	<!-- Define your 3d scene and enabled ar.js -->
+	<a-scene id='main-app-container' embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
+		
+		<a-entity id='hologram' position='0 0 0'>
+			<a-sphere position="0 0.5 0" radius="0.5" color="#EF2D5E"></a-sphere>
+			<a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" color="#7BC8A4"></a-plane>
+		</a-entity>
+
+
+		<a-marker-camera preset='hiro'></a-marker-camera>
+	</a-scene>
+</body>
