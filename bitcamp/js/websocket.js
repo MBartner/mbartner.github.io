@@ -10,7 +10,7 @@ var updateCallback;
 var leaveCallback;
 
 function connect(callback){
-	socket = new WebSocket('ws://127.0.0.1:3000');
+	socket = new WebSocket('ws://ec2-34-235-88-175.compute-1.amazonaws.com:3000');
 
 	socket.onopen = function () {
 		isConnected = true;
