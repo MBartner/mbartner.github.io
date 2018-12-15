@@ -11801,8 +11801,8 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>One of the toughest moments in many young basketball players' lives is recognizing that they don't have the physique to follow their dreams to becoming a basketball star. In a game built around tranlating a ball from a player's hands to a metal hoop located ten feet above the ground, it is easy to see how advantageous a player's height and weight can be.</p>
-<p>Yet, even NBA teams composed of players whose standing reaches (the heigh of a player with their arms erect) are merely inches from the rim have been defeated, and teams utilizing players like Tyrone “Muggsy” Bogues, who stood at only 5'3 (yes, there is still hope!), can emerge victorious.</p>
-<p>Today, we will uncover how impactful a player physique is on their team's success through the analysis of NBA team and player data from the past 10 full seasons of NBA basketball.</p>
+<p>Yet, even NBA teams composed of players whose standing reaches (the height of a player with their arms erect) are merely inches from the rim have been defeated, and teams utilizing players like Tyrone “Muggsy” Bogues, who stood at only 5'3 (yes, there is still hope!), can emerge victorious.</p>
+<p>Today, we will uncover how impactful a player's physique is on their team's success through the analysis of NBA team and player data from the past 10 full seasons of NBA basketball.</p>
 
 </div>
 </div>
@@ -11827,8 +11827,8 @@ Numpy       - Generating random numbers
 Pandas      - Organize and manipulate data
 Matplotlib  - Plotting data
 ggplot      - Violin plots
-sklearn     - Fitting regression lines
-statsmodels - Interaction term</code></pre>
+sklearn     - Lines of best fit
+statsmodels - Fitting linear regressions</code></pre>
 
 </div>
 </div>
@@ -11859,7 +11859,7 @@ statsmodels - Interaction term</code></pre>
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Retrieving-the-Data">Retrieving the Data<a class="anchor-link" href="#Retrieving-the-Data">&#182;</a></h3><p>To begin our endeavor, we will need to obtain the data on both NBA teams and players. Datasets aren't always easy to find and may require you to apply some ad-hoc methodology to obtain what you're looking for. The story behind this particular dataset starts from <a href="https://stats.nba.com">https://stats.nba.com</a>. I quickly found the necessary data on their website, and decided I would just parse the html from the website. However, I slowly realized that the data was loaded after the website's inital page was loaded, meaning it wouldn't appear with a single query to the page. Using <a href="https://developers.google.com/web/tools/chrome-devtools/">Chrome's web inspector</a>, I traced the subsequent requests to a separate path on the website that accepted queries and responded with data formatted in <a href="https://en.wikipedia.org/wiki/JSON">JSON</a>.</p>
+<h3 id="Retrieving-the-Data">Retrieving the Data<a class="anchor-link" href="#Retrieving-the-Data">&#182;</a></h3><p>To begin our endeavor, we will need to obtain the data on both NBA teams and players. Datasets aren't always easy to find and may require you to apply some ad-hoc methods to obtain what you're looking for. The story behind this particular dataset starts from <a href="https://stats.nba.com">https://stats.nba.com</a>. I quickly found the necessary data on their website, and decided I would just parse the html from the website. However, I slowly realized that the data was loaded after the website's inital page was loaded, meaning it wouldn't appear with a single query to the page. Using <a href="https://developers.google.com/web/tools/chrome-devtools/">Chrome's web inspector</a>, I traced the subsequent requests to a separate path on the website that accepted queries and responded with data formatted in <a href="https://en.wikipedia.org/wiki/JSON">JSON</a>.</p>
 <p>This annoyance was a blessing in disguise, as it made the data far more easier to process than it would have to parse each unpredicatable line of the html. Of course with some caveats.</p>
 <p>The following code conveys the process of retrieving NBA team and player data from the last 10 full seasons and saving the JSON response, in a dictionary keyed by season, to be processed afterward. More detail in the code comments.</p>
 
@@ -12319,7 +12319,7 @@ Patrick Christopher:      77           209
 Will Cherry        :      73           176
 
 </code></pre>
-<p>Unfortunately, this means our data might be slightly skewed if the players have fluctuated in weight (more likely) or height, but it is probably the best form of imputation we could have performed. Let's add these into our DataFrame.</p>
+<p>Unfortunately, this means our data might be slightly skewed if the players have fluctuated in weight or height (unlikely), but it is probably the best form of imputation we could have performed. Let's add these into our DataFrame.</p>
 
 </div>
 </div>
@@ -12796,7 +12796,7 @@ Color            [0.9222365195955999, 0.8738632609639102, 0.034...
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Alrighty. It seems we have a mean height of 79 inches (6'7) and an average weight of about 222 pounds over the 10 year period, with relatively low standard deviations for both attributes. However, the 10 year averages might be slightly skewed based off the fact that some players have been in the league longer than others, and as a result, their attributes carry more weight. Luckily, visual analysis of the violin plots for both the heights and weights depict very conistent data, which makes sense considering those players that stay in the league for multiple years as well as the fact that players tend not to flucuate too much in weight and, especially, height. Still, teams are constantly trading players around in an effort to strategically move toward a more successful team. Let's inspect some of the tallest and heaviest teams in the league and some other relevant features.</p>
+<p>Alrighty. It seems we have a mean height of 79 inches (6'7) and an average weight of about 222 pounds over the 10 year period, with relatively low standard deviations for both attributes. However, the 10 year averages might be slightly skewed based off the fact that some players have been in the league longer than others, and, as a result, their attributes carry more weight. Luckily, visual analysis of the violin plots for both the heights and weights depict very conistent data, which makes sense considering those players that stay in the league for multiple years as well as the fact that players tend not to flucuate too much in weight and, especially, height. Still, teams are constantly trading players around in an effort to strategically move toward a more successful team. Let's inspect some of the tallest and heaviest teams in the league and some other relevant features.</p>
 
 </div>
 </div>
